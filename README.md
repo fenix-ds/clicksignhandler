@@ -1,5 +1,5 @@
 # Clicksign Handler
-Golang package for communication with the Clicksign 3.0 API.
+Golang package for communication with the Clicksign 3.0 API. This repository was created by an independent developer and is not affiliated with Clicksign or its associates.
 
 ## Technologies
 
