@@ -310,7 +310,7 @@ func Test_SignerCreate(t *testing.T) {
 			},
 		},
 	}); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	}
 
@@ -356,14 +356,14 @@ func Test_ObserverCreate(t *testing.T) {
 			},
 		},
 	}); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	} else if _, err := clicksignHandler.ObserverCreate(&clicksignhandler.ObserverCreate{
 		Envelope: &envelope.Data,
 		Name:     "Observer Test",
 		Email:    "observer@test.com",
 	}); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	}
 
@@ -409,10 +409,10 @@ func Test_EnvelopeDelete(t *testing.T) {
 			},
 		},
 	}); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	} else if err := clicksignHandler.EnvelopeDelete(&envelope.Data); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	}
 
@@ -458,13 +458,66 @@ func Test_EnvelopeActive(t *testing.T) {
 			},
 		},
 	}); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	} else if _, err := clicksignHandler.EnvelopeActive(&envelope.Data); err != nil {
-		t.Error()
+		t.Error(err)
 		return
 	}
 
+}
+
+func Test_DocumentCancel(t *testing.T) {
+	err := loadfileEnv(t)
+	if err != nil {
+		return
+	}
+
+	err = attributeVarClicksignHandler()
+	if err != nil {
+		return
+	}
+
+	if envelope, err := clicksignHandler.EnvelopeCreate(&clicksignhandler.EnvelopeCreate{
+		Name: "Test",
+	}); err != nil {
+		t.Error(err)
+		return
+	} else if document, err := clicksignHandler.DocumentCreate(&clicksignhandler.DocumentCreate{
+		Envelope:   &envelope.Data,
+		FileType:   clicksignhandler.DFT_PDF,
+		FileName:   "document.pdf",
+		FileBase64: filePDFBase64,
+	}); err != nil {
+		t.Error(err)
+		return
+	} else if _, err := clicksignHandler.SignerCreate(&clicksignhandler.SignerCreate{
+		Envelope: &envelope.Data,
+		Document: &document.Data,
+		Signer: &clicksignhandler.SignerPayload{
+			Type:               clicksignhandler.SRT_WITNESS,
+			AutomaticSignature: clicksignhandler.AUT_EMAIL,
+			Name:               "Test Test Test",
+			Email:              "test@test.com",
+			HasDocumentation:   nil,
+			CommunicateEvents: clicksignhandler.SignerCommunicateEvents{
+				SignatureRequest:        clicksignhandler.SREQ_NONE,
+				SignatureReminder:       clicksignhandler.SREM_NONE,
+				SignatureDocumentSigned: clicksignhandler.SDS_EMAIL,
+			},
+		},
+	}); err != nil {
+		t.Error(err)
+		return
+	} else if envelope, err := clicksignHandler.EnvelopeActive(&envelope.Data); err != nil {
+		t.Error(err)
+		return
+	} else {
+		if _, err := clicksignHandler.DocumentCancel(&envelope.Data, &document.Data.ID); err != nil {
+			t.Error(err)
+			return
+		}
+	}
 }
 
 func loadfileEnv(t *testing.T) error {
