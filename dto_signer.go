@@ -147,3 +147,11 @@ type _SignerRequerimentQualificationCreate struct {
 	SignerId   string
 	SignerType SignerType
 }
+
+type _SignerBulkRequirementsCreate struct {
+	EnvelopeId         string
+	DocumentId         string
+	SignerId           string
+	AuthenticationType AuthenticationType
+	SignerType         SignerType
+}
