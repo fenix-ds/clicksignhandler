@@ -124,6 +124,85 @@ func (c *ClicksignHandler) _SignerAddRequerimentQualification(param _SignerReque
 	return nil
 }
 
+func (c *ClicksignHandler) _SignerBulkRequirementsAutenticationAndQualification(param _SignerBulkRequirementsCreate) error {
+	url := fmt.Sprintf("%s/envelopes/%s/bulk_requirements?access_token=%s",
+		*c.url, param.EnvelopeId, *c.accesstoken)
+
+	payload, err := json.Marshal(map[string]interface{}{
+		"atomic:operations": []map[string]interface{}{
+			{
+				"op": "add",
+				"data": map[string]interface{}{
+					"type": "requirements",
+					"attributes": map[string]interface{}{
+						"action": "provide_evidence",
+						"auth":   param.AuthenticationType,
+					},
+					"relationships": map[string]interface{}{
+						"document": map[string]interface{}{
+							"data": map[string]interface{}{
+								"type": "documents", "id": param.DocumentId,
+							},
+						},
+						"signer": map[string]interface{}{
+							"data": map[string]interface{}{
+								"type": "signers", "id": param.SignerId,
+							},
+						},
+					},
+				},
+			},
+
+			{
+				"op": "add",
+				"data": map[string]interface{}{
+					"type": "requirements",
+					"attributes": map[string]interface{}{
+						"action": "agree",
+						"role":   param.SignerType,
+					},
+					"relationships": map[string]interface{}{
+						"document": map[string]interface{}{
+							"data": map[string]interface{}{
+								"type": "documents", "id": param.DocumentId,
+							},
+						},
+						"signer": map[string]interface{}{
+							"data": map[string]interface{}{
+								"type": "signers", "id": param.SignerId,
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/vnd.api+json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("erro adicionar autenticação: %s", string(b))
+	}
+
+	return nil
+}
+
 func _DocumentGetEvents[T any](url string) (*ResultList[T], error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 
