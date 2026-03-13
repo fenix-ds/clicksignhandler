@@ -738,22 +738,37 @@ func (c *ClicksignHandler) SignerCreate(param *SignerCreate) (*ResultData[Signer
 	var result ResultData[SignerData]
 	json.NewDecoder(res.Body).Decode(&result)
 
-	if err := c._SignerAddRequerimentAutentication(_SignerRequerimentAutenticationCreate{
-		EnvelopeId:         param.Envelope.ID,
-		DocumentId:         param.Document.ID,
-		SignerId:           result.Data.ID,
-		AuthenticationType: param.Signer.AutomaticSignature,
-	}); err != nil {
-		return nil, err
-	}
+	switch strings.ToLower(param.Envelope.Attributes.Status) {
+	case "draft":
+		if err := c._SignerAddRequerimentAutentication(_SignerRequerimentAutenticationCreate{
+			EnvelopeId:         param.Envelope.ID,
+			DocumentId:         param.Document.ID,
+			SignerId:           result.Data.ID,
+			AuthenticationType: param.Signer.AutomaticSignature,
+		}); err != nil {
+			return nil, err
+		}
 
-	if err := c._SignerAddRequerimentQualification(_SignerRequerimentQualificationCreate{
-		EnvelopeId: param.Envelope.ID,
-		DocumentId: param.Document.ID,
-		SignerId:   result.Data.ID,
-		SignerType: param.Signer.Type,
-	}); err != nil {
-		return nil, err
+		if err := c._SignerAddRequerimentQualification(_SignerRequerimentQualificationCreate{
+			EnvelopeId: param.Envelope.ID,
+			DocumentId: param.Document.ID,
+			SignerId:   result.Data.ID,
+			SignerType: param.Signer.Type,
+		}); err != nil {
+			return nil, err
+		}
+	case "running":
+		if err := c._SignerBulkRequirementsAutenticationAndQualification(_SignerBulkRequirementsCreate{
+			EnvelopeId:         param.Envelope.ID,
+			DocumentId:         param.Document.ID,
+			SignerId:           result.Data.ID,
+			SignerType:         param.Signer.Type,
+			AuthenticationType: param.Signer.AutomaticSignature,
+		}); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("envelope status is invalid.")
 	}
 
 	return &result, nil
