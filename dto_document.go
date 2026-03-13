@@ -6,7 +6,8 @@ type DocumentData struct {
 	Links struct {
 		Self  string `json:"self"`
 		Files struct {
-			Original string `json:"original"`
+			Original string  `json:"original"`
+			Signed   *string `json:"signed"`
 		} `json:"files"`
 	} `json:"links"`
 	Attributes struct {
