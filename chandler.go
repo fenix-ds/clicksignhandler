@@ -16,11 +16,13 @@ type ClicksignHandler struct {
 }
 
 type EnvelopeGetFilters struct {
-	OnlyRunning bool
-	DeadlineAt  *EnvelopeFilterDeadlineAt
+	Status     *EnvelopeStatus
+	CreatedAt  *EnvelopeFilterDate
+	DeadlineAt *EnvelopeFilterDate
+	ModifiedAt *EnvelopeFilterDate
 }
 
-type EnvelopeFilterDeadlineAt struct {
+type EnvelopeFilterDate struct {
 	Begin time.Time
 	End   *time.Time
 }
@@ -130,8 +132,34 @@ func (c *ClicksignHandler) EnvelopeGetById(envelopeId string) (*ResultData[Envel
 func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*ResultList[EnvelopeData], error) {
 	url := fmt.Sprintf("%s/envelopes?access_token=%s", *c.url, *c.accesstoken)
 
-	if param.OnlyRunning {
-		url += "&filter[status]=running"
+	if param.Status != nil {
+		url += fmt.Sprintf("&filter[status]=%s", string(*param.Status))
+	}
+
+	if param.CreatedAt != nil {
+		yB, mB, dB := param.CreatedAt.Begin.Date()
+		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, time.UTC)
+		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, time.UTC)
+
+		if param.CreatedAt.End != nil {
+			yE, mE, dE := param.CreatedAt.End.Date()
+			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, time.UTC)
+		}
+
+		url += fmt.Sprintf("&filter[created]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
+	}
+
+	if param.ModifiedAt != nil {
+		yB, mB, dB := param.ModifiedAt.Begin.Date()
+		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, time.UTC)
+		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, time.UTC)
+
+		if param.ModifiedAt.End != nil {
+			yE, mE, dE := param.ModifiedAt.End.Date()
+			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, time.UTC)
+		}
+
+		url += fmt.Sprintf("&filter[modified]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
 	}
 
 	if param.DeadlineAt != nil {

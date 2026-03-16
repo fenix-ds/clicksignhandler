@@ -221,8 +221,8 @@ func Test_DocumentsGetNextPage(t *testing.T) {
 	}
 
 	if envelopes, err := clicksignHandler.EnvelopesGetFirstPage(clicksignhandler.EnvelopeGetFilters{
-		OnlyRunning: false,
-		DeadlineAt:  nil,
+		Status:     nil,
+		DeadlineAt: nil,
 	}); err != nil {
 		t.Error(err)
 		return

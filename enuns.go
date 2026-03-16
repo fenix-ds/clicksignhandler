@@ -52,6 +52,19 @@ func (i *CSIntString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type EnvelopeStatus string
+
+const (
+	ES_DRAFT    EnvelopeStatus = "draft"
+	ES_RUNNING  EnvelopeStatus = "running"
+	ES_CLOSED   EnvelopeStatus = "closed"
+	ES_CANCELED EnvelopeStatus = "canceled"
+)
+
+func (e EnvelopeStatus) ToPoint() *EnvelopeStatus {
+	return &e
+}
+
 type DocumentFileType string
 
 const (
