@@ -12,5 +12,6 @@ func NewClicksignHandler(param ClicksignParam) (*ClicksignHandler, error) {
 	return &ClicksignHandler{
 		url:         &url,
 		accesstoken: &param.Key,
+		defautUTC:   param.DefautUTC,
 	}, nil
 }

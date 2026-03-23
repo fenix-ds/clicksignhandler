@@ -3,6 +3,7 @@ package clicksignhandler_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/fenix-ds/clicksignhandler"
 	"github.com/joho/godotenv"
@@ -534,10 +535,13 @@ func loadfileEnv(t *testing.T) error {
 }
 
 func attributeVarClicksignHandler() error {
+	loc := time.FixedZone("UTC-3", -3*60*60)
+
 	var err error
 	if clicksignHandler, err = clicksignhandler.NewClicksignHandler(clicksignhandler.ClicksignParam{
-		Environment: clicksignhandler.EnvSandbox,
+		Environment: clicksignhandler.EnvProd,
 		Key:         os.Getenv("ACCESS_TOKEN"),
+		DefautUTC:   loc,
 	}); err != nil {
 		return err
 	}

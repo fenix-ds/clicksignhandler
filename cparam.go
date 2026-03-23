@@ -1,10 +1,14 @@
 package clicksignhandler
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type ClicksignParam struct {
 	Environment Environment
 	Key         string
+	DefautUTC   *time.Location
 }
 
 func (p ClicksignParam) checkData() error {
@@ -14,6 +18,10 @@ func (p ClicksignParam) checkData() error {
 
 	if len(p.Key) == 0 {
 		return fmt.Errorf("invalid key")
+	}
+
+	if p.DefautUTC == nil {
+		return fmt.Errorf("Added timezone for communication configuration with clicksing.")
 	}
 
 	return nil

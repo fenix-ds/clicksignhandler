@@ -13,6 +13,7 @@ import (
 type ClicksignHandler struct {
 	url         *string
 	accesstoken *string
+	defautUTC   *time.Location
 }
 
 type EnvelopeGetFilters struct {
@@ -138,12 +139,12 @@ func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*Res
 
 	if param.CreatedAt != nil {
 		yB, mB, dB := param.CreatedAt.Begin.Date()
-		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, time.UTC)
-		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, time.UTC)
+		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, c.defautUTC)
+		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, c.defautUTC)
 
 		if param.CreatedAt.End != nil {
 			yE, mE, dE := param.CreatedAt.End.Date()
-			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, time.UTC)
+			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, c.defautUTC)
 		}
 
 		url += fmt.Sprintf("&filter[created]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
@@ -151,12 +152,12 @@ func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*Res
 
 	if param.ModifiedAt != nil {
 		yB, mB, dB := param.ModifiedAt.Begin.Date()
-		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, time.UTC)
-		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, time.UTC)
+		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, c.defautUTC)
+		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, c.defautUTC)
 
 		if param.ModifiedAt.End != nil {
 			yE, mE, dE := param.ModifiedAt.End.Date()
-			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, time.UTC)
+			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, c.defautUTC)
 		}
 
 		url += fmt.Sprintf("&filter[modified]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
@@ -164,16 +165,18 @@ func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*Res
 
 	if param.DeadlineAt != nil {
 		yB, mB, dB := param.DeadlineAt.Begin.Date()
-		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, time.UTC)
-		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, time.UTC)
+		beginUTC := time.Date(yB, mB, dB, 0, 0, 0, 0, c.defautUTC)
+		endUTC := time.Date(yB, mB, dB, 23, 59, 59, 999, c.defautUTC)
 
 		if param.DeadlineAt.End != nil {
 			yE, mE, dE := param.DeadlineAt.End.Date()
-			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, time.UTC)
+			endUTC = time.Date(yE, mE, dE, 23, 59, 59, 999, c.defautUTC)
 		}
 
 		url += fmt.Sprintf("&filter[deadline_at]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
 	}
+
+	fmt.Println(url)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
