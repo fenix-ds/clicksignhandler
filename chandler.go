@@ -176,8 +176,6 @@ func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*Res
 		url += fmt.Sprintf("&filter[deadline_at]=%s,%s", beginUTC.Format(time.RFC3339), endUTC.Format(time.RFC3339))
 	}
 
-	fmt.Println(url)
-
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
