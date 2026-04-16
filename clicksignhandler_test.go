@@ -63,11 +63,14 @@ func Test_EnvelopesGetFirstPage(t *testing.T) {
 		return
 	}
 
-	if envelope, err := clicksignHandler.EnvelopesGetFirstPage(clicksignhandler.EnvelopeGetFilters{}); err != nil {
+	te := "Contrato"
+	if envelope, err := clicksignHandler.EnvelopesGetFirstPage(clicksignhandler.EnvelopeGetFilters{
+		Name: &te,
+	}); err != nil {
 		t.Error(err)
 		return
 	} else {
-		t.Log(envelope.Meta.RecordCount)
+		t.Log(envelope.Data)
 	}
 }
 

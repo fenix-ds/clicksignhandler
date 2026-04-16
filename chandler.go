@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	urlHandler "net/url"
 	"strings"
 	"time"
 )
@@ -136,7 +137,7 @@ func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*Res
 
 	if param.Name != nil {
 		if len(*param.Name) > 0 {
-			url += fmt.Sprintf("&filter[name]=%s", string(*param.Name))
+			url += fmt.Sprintf("&filter[name]=%s", urlHandler.QueryEscape(*param.Name))
 		}
 	}
 
