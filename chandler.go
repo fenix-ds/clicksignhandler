@@ -17,6 +17,7 @@ type ClicksignHandler struct {
 }
 
 type EnvelopeGetFilters struct {
+	Name       *string
 	Status     *EnvelopeStatus
 	CreatedAt  *EnvelopeFilterDate
 	DeadlineAt *EnvelopeFilterDate
@@ -132,6 +133,12 @@ func (c *ClicksignHandler) EnvelopeGetById(envelopeId string) (*ResultData[Envel
 
 func (c *ClicksignHandler) EnvelopesGetFirstPage(param EnvelopeGetFilters) (*ResultList[EnvelopeData], error) {
 	url := fmt.Sprintf("%s/envelopes?access_token=%s", *c.url, *c.accesstoken)
+
+	if param.Name != nil {
+		if len(*param.Name) > 0 {
+			url += fmt.Sprintf("&filter[name]=%s", string(*param.Name))
+		}
+	}
 
 	if param.Status != nil {
 		url += fmt.Sprintf("&filter[status]=%s", string(*param.Status))
